@@ -33,7 +33,7 @@ fun CityDropDown(selectionCity: (String) -> Unit) {
     var indexDestination by remember { mutableIntStateOf(0) }
     var newIndex by remember { mutableStateOf(0) }
     val citySource = listOf(
-        "Choose City:",
+        "SELECT CITY",
         "MAJLIS PARK",
         "AZADPUR",
         "SHALIMAR BAGH",
@@ -58,7 +58,7 @@ fun CityDropDown(selectionCity: (String) -> Unit) {
         "MAYUR VIHAR - 1"
     )
     val cityDestination = listOf(
-        "Destination",
+        "DESTINATION",
         "MAJLIS PARK",
         "AZADPUR",
         "SHALIMAR BAGH",
