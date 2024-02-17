@@ -1,6 +1,8 @@
 package com.example.travelapp
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,6 +74,7 @@ fun Source_Destination_Dropdown(){
     val sourceStore = remember { mutableStateOf("") }
     val destinationStore = remember { mutableStateOf("") }
     val scrollingState = rememberScrollState()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -125,12 +129,11 @@ fun Source_Destination_Dropdown(){
 
                     Button(
                         onClick = {
-                            if (sourceStore.value == destinationStore.value) {
-
-                                println("Please try again. Source and destination are the same.")
-
+                            //Log.d("TAG", "sourceStore: ${selectSource}, destinationStore: ${selectDestination}")
+                            if (selectSource == selectDestination) {
+                                Log.d("TAG", "Hello")
+                                Toast.makeText(context, "Please try again. Source and destination are the same.", Toast.LENGTH_SHORT).show()
                             } else {
-.
                                 sourceStore.value = selectSource
                                 destinationStore.value = selectDestination
                             }
@@ -142,26 +145,27 @@ fun Source_Destination_Dropdown(){
                         Text(text = "Submit")
                     }
 
+
                     Spacer(modifier = Modifier.size(50.dp))
 
 
-//                    Column(
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        OutlinedTextField(
-//                            value = sourceStore.value,
-//                            onValueChange = {  },
-//                            label = { Text("Source") },
-//                            readOnly = true
-//                        )
-//
-//                        OutlinedTextField(
-//                            value = destinationStore.value,
-//                            onValueChange = {  },
-//                            label = { Text("Destination") },
-//                            readOnly = true
-//                        )
-//                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedTextField(
+                            value = sourceStore.value,
+                            onValueChange = {  },
+                            label = { Text("Source") },
+                            readOnly = true
+                        )
+
+                        OutlinedTextField(
+                            value = destinationStore.value,
+                            onValueChange = {  },
+                            label = { Text("Destination") },
+                            readOnly = true
+                        )
+                    }
                 }
             }
         }
