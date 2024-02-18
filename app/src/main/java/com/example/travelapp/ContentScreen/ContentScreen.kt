@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 import androidx.compose.material3.Text as Text
 
 data class CityDistance(val city: String, val distanceKm: Int)
@@ -181,7 +182,7 @@ fun contentScreen(navController: NavController, src: String, dst: String) {
 fun entryTextView(src: String, dst: String, filteredCities: List<String>, distances: List<Int>,totalDistance:Int) {
 
     val totalDistanceMiles = totalDistance
-    val totalDistanceKm = (totalDistanceMiles / 1.609)
+    var totalDistanceKm = (totalDistanceMiles * 1.60934)
     var progress by remember { mutableStateOf(0.0) }
 
     var getSource = src
@@ -280,7 +281,7 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
 
                             )
                             OutlinedTextField(
-                                value = if (currentUnit == UnitType.MILES) "$totalDistanceCoverMiles miles" else "$totalDistanceCoverKm km",
+                                value = if (currentUnit == UnitType.MILES)  "$totalDistanceCoverMiles miles" else String.format("%.2f km", totalDistanceCoverKm),
                                 onValueChange = {
                                     // Handle value change if needed
                                 },
@@ -291,7 +292,7 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
                                     .padding(bottom = 16.dp)
                             )
                             OutlinedTextField(
-                                value = if (currentUnit == UnitType.MILES) "$totalDistanceLeftMiles miles" else "$totalDistanceLeftKm km",
+                                value = if (currentUnit == UnitType.MILES) "$totalDistanceLeftMiles miles"  else String.format("%.2f km", totalDistanceLeftKm),
                                 onValueChange = {
                                     // Handle value change if needed
                                 },
@@ -302,10 +303,11 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
                                     .padding(bottom = 16.dp)
                             )
                             OutlinedTextField(
-                                value = if (currentUnit == UnitType.MILES) "$totalDistanceMiles miles" else "$totalDistanceKm km",
+
+                                value = if (currentUnit == UnitType.MILES) "$totalDistanceMiles miles" else String.format("%.2f km", totalDistanceKm),
                                 onValueChange = {
-                                    // Handle value change if needed
-                                },
+                                   // totalDistanceKm = "%.2f".format(totalDistanceKm).toDouble()
+                                                },
                                 label = { Text("Total Distance") },
                                 readOnly = true,
                                 modifier = Modifier
@@ -350,15 +352,16 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
 
 
                                         eachPlaceDistanceMiles = distances[currentIndex]
-                                        eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble()
+                                        eachPlaceDistanceKm = (eachPlaceDistanceMiles * 1.60934).toDouble()
 
 
-                                        totalDistanceCoverKm = "%.2f".format(totalDistanceCoverKm).toDouble() + "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
-                                        totalDistanceCoverMiles += eachPlaceDistanceMiles.absoluteValue
+                                        totalDistanceCoverKm = (totalDistanceCoverKm).toDouble() + (eachPlaceDistanceKm).toDouble()
+                                        totalDistanceCoverMiles += eachPlaceDistanceMiles
 
+                                        //totalDistanceKm = "%.2f".format(totalDistanceKm).toDouble()
 
-                                        totalDistanceLeftKm -=  "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
-                                        totalDistanceLeftMiles -= eachPlaceDistanceMiles.absoluteValue
+                                        totalDistanceLeftKm -=  (eachPlaceDistanceKm).toDouble()
+                                        totalDistanceLeftMiles -= eachPlaceDistanceMiles
 
                                         //progress = ((totalDistanceCoverKm + eachPlaceDistanceKm) / totalDistanceKm).coerceIn(0.0, 1.0)
 
@@ -366,7 +369,7 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 5.dp),
+                                    .padding(top = 15.dp,bottom = 20.dp),
                                 enabled = currentIndex != filteredCities.indexOf(dst)
                             ) {
                                 Text(text = "Next Station")
@@ -376,15 +379,19 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
                                 onClick = {
                                     // Toggle between kilometers and miles
                                     currentUnit = if (currentUnit == UnitType.MILES) {
-                                        eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble().absoluteValue
-                                        totalDistanceLeftKm = "%.2f".format(totalDistanceLeftMiles * 1.60934).toDouble().absoluteValue
-                                        totalDistanceCoverKm = "%.2f".format(totalDistanceCoverMiles * 1.60934).toDouble().absoluteValue
+                                        eachPlaceDistanceKm = (eachPlaceDistanceMiles * 1.60934).toDouble()
+                                        totalDistanceLeftKm = (totalDistanceLeftMiles * 1.60934).toDouble()
+                                        totalDistanceCoverKm = (totalDistanceCoverMiles * 1.60934).toDouble()
+                                        totalDistanceKm = (totalDistanceKm).toDouble()
 
                                         UnitType.KILOMETERS
                                     } else {
-                                        eachPlaceDistanceMiles = (eachPlaceDistanceKm / 1.60934).toInt().absoluteValue
-                                        totalDistanceLeftMiles = (totalDistanceLeftKm / 1.60934).toInt().absoluteValue
-                                        totalDistanceCoverMiles = (totalDistanceCoverKm / 1.60934).toInt().absoluteValue
+                                        eachPlaceDistanceMiles = (eachPlaceDistanceKm / 1.60934).roundToInt()
+                                            .toInt()
+                                        totalDistanceLeftMiles = (totalDistanceLeftKm / 1.60934).roundToInt()
+                                            .toInt()
+                                        totalDistanceCoverMiles = (totalDistanceCoverKm / 1.60934).roundToInt()
+                                            .toInt()
                                         UnitType.MILES
                                     }
                                 },
