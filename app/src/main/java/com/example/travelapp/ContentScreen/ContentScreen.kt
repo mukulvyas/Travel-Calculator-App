@@ -94,11 +94,12 @@ fun contentScreen(navController: NavController, src: String, dst: String) {
         }
 
 
-
-    if (distanceSrcDst < 0) {
-        filteredCities = filteredCities.reversed()
-
+    val reversedList: List<CityDistance> = if (distanceSrcDst < 0) {
+        filteredCities.reversed()
+    } else {
+        filteredCities
     }
+
 
 // Now you can use the new_list as needed
 
@@ -133,7 +134,18 @@ fun contentScreen(navController: NavController, src: String, dst: String) {
 //            Text(text = "$src")
 //            Text(text = "$dst")
 //            Text(
-//                text = "Filtered Cities: ${filteredCities.joinToString { it.city }}",
+//                text = "Filtered Cities: ${filteredCities.map { it.distanceKm }}",
+//                modifier = Modifier
+//                    .padding(16.dp)
+//                    .fillMaxWidth(),
+//                textAlign = TextAlign.Center,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 18.sp,
+//                color = Color.Black
+//            )
+//
+//                        Text(
+//                            text = "Filtered Cities: ${reversedList.joinToString { it.city }}",
 //                modifier = Modifier
 //                    .padding(16.dp)
 //                    .fillMaxWidth(),
@@ -153,7 +165,7 @@ fun contentScreen(navController: NavController, src: String, dst: String) {
             Log.d("TAG","totalDistance:$totalDistance")
 
 
-            entryTextView(src, dst, filteredCities.map { it.city }, filteredCities.map { it.distanceKm },totalDistance)
+            entryTextView(src, dst, reversedList.map { it.city }, filteredCities.map { it.distanceKm },totalDistance)
         }
     }
 }
