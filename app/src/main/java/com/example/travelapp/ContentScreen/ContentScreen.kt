@@ -3,26 +3,29 @@ package com.example.travelapp.ContentScreen
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -36,10 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlin.math.absoluteValue
+import androidx.compose.material3.Text as Text
 
 data class CityDistance(val city: String, val distanceKm: Int)
 
@@ -193,6 +199,8 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
     var showList by remember { mutableStateOf(false) }
     var currentIndex by remember { mutableStateOf(0) }
     var currentUnit by remember { mutableStateOf(UnitType.MILES) }
+    var isListVisible by remember { mutableStateOf(true) }
+
 
     progress = 0.0
     LaunchedEffect(currentIndex) {
@@ -207,197 +215,216 @@ fun entryTextView(src: String, dst: String, filteredCities: List<String>, distan
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(7.dp)
+            .padding(7.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(7.dp),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(7.dp),
+        if (!isListVisible) {
+            newScreen(filteredCities)
+            Button(onClick ={ isListVisible = true}
             ) {
-                // Column for OutlinedTextFields
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = getSource,
-                        onValueChange = { },
-                        label = { Text("Source") },
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp)
-                    )
-                    OutlinedTextField(
-                        value = getDestination,
-                        onValueChange = { },
-                        label = { Text("Destination") },
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = filteredCities.getOrNull(currentIndex) ?: "",
-                        onValueChange = { },
-                        label = { Text("Current") },
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-
-                    )
-                    OutlinedTextField(
-                        value = if (currentUnit == UnitType.MILES) "$totalDistanceCoverMiles miles" else "$totalDistanceCoverKm km",
-                        onValueChange = {
-                            // Handle value change if needed
-                        },
-                        label = { Text("Distance Cover") },
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp)
-                    )
-                    OutlinedTextField(
-                        value = if (currentUnit == UnitType.MILES) "$totalDistanceLeftMiles miles" else "$totalDistanceLeftKm km",
-                        onValueChange = {
-                            // Handle value change if needed
-                        },
-                        label = { Text("Distance Left") },
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                    )
-                }
-
-                // Column for Buttons
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(360.dp)
-                        .padding(start = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = {
-                            if (currentIndex != filteredCities.indexOf(dst)) {
-                                currentIndex = (currentIndex + 1) % filteredCities.size
-                                if (currentIndex == 0)
-                                {
-                                    currentPlace = 0.toString()
-                                }
-                                else{
-                                    currentPlace = filteredCities[currentIndex]}
-
-
-                                eachPlaceDistanceMiles = distances[currentIndex]
-                                eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble()
-
-
-                                totalDistanceCoverKm = "%.2f".format(totalDistanceCoverKm).toDouble() + "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
-                                totalDistanceCoverMiles += eachPlaceDistanceMiles.absoluteValue
-
-
-                                totalDistanceLeftKm -=  "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
-                                totalDistanceLeftMiles -= eachPlaceDistanceMiles.absoluteValue
-
-                                //progress = ((totalDistanceCoverKm + eachPlaceDistanceKm) / totalDistanceKm).coerceIn(0.0, 1.0)
-
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp),
-                        enabled = currentIndex != filteredCities.indexOf(dst)
-                    ) {
-                        Text(text = "Next Station")
-                    }
-
-                    Button(
-                        onClick = {
-                            // Toggle between kilometers and miles
-                            currentUnit = if (currentUnit == UnitType.MILES) {
-                                eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble().absoluteValue
-                                totalDistanceLeftKm = "%.2f".format(totalDistanceLeftMiles * 1.60934).toDouble().absoluteValue
-                                totalDistanceCoverKm = "%.2f".format(totalDistanceCoverMiles * 1.60934).toDouble().absoluteValue
-
-                                UnitType.KILOMETERS
-                            } else {
-                                eachPlaceDistanceMiles = (eachPlaceDistanceKm / 1.60934).toInt().absoluteValue
-                                totalDistanceLeftMiles = (totalDistanceLeftKm / 1.60934).toInt().absoluteValue
-                                totalDistanceCoverMiles = (totalDistanceCoverKm / 1.60934).toInt().absoluteValue
-                                UnitType.MILES
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    ) {
-                        Text(text = "Convert to ${if (currentUnit == UnitType.MILES) "Kilometer" else "Miles"}")
-                    }
-
-                    Button(
-                        onClick = { showList = !showList },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp)
-                    ) {
-                        Text(text = "List")
-                    }
-                }
+                Text(text = "Show Content")
             }
-            LinearProgressIndicator(
-                progress = progress.toFloat(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
-            )
 
-            // Percentage Text
-            Text(
-                text = "${"%.2f".format(progress * 100)}%",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp)
-                    .align(Alignment.CenterHorizontally),
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = Color.Black
-            )
-        }
-
-        if (showList) {
-            Card(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(7.dp)
-            ) {
-                LazyColumn(
+        } 
+        else{
+            if (isListVisible) {
+                
+                
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .padding(7.dp),
+
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 12.dp)
+
                 ) {
-                    items(filteredCities) { city ->
-                        Text(
-                            text = city,
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(7.dp),
+                    ) {
+                        // Column for OutlinedTextFields
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = getSource,
+                                onValueChange = { },
+                                label = { Text("Source") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 5.dp,bottom = 5.dp)
+                            )
+                            OutlinedTextField(
+                                value = getDestination,
+                                onValueChange = { },
+                                label = { Text("Destination") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            )
+                            OutlinedTextField(
+                                value = filteredCities.getOrNull(currentIndex) ?: "",
+                                onValueChange = { },
+                                label = { Text("Current") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+
+                            )
+                            OutlinedTextField(
+                                value = if (currentUnit == UnitType.MILES) "$totalDistanceCoverMiles miles" else "$totalDistanceCoverKm km",
+                                onValueChange = {
+                                    // Handle value change if needed
+                                },
+                                label = { Text("Distance Cover") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp)
+                            )
+                            OutlinedTextField(
+                                value = if (currentUnit == UnitType.MILES) "$totalDistanceLeftMiles miles" else "$totalDistanceLeftKm km",
+                                onValueChange = {
+                                    // Handle value change if needed
+                                },
+                                label = { Text("Distance Left") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp)
+                            )
+                            OutlinedTextField(
+                                value = if (currentUnit == UnitType.MILES) "$totalDistanceMiles miles" else "$totalDistanceKm km",
+                                onValueChange = {
+                                    // Handle value change if needed
+                                },
+                                label = { Text("Total Distance") },
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp)
+                            )
+                        }
+
+                        // Column for Buttons
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(360.dp)
+                                .padding(start = 10.dp, top = 100.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(modifier = Modifier
+                                .clickable {
+                                    isListVisible = !isListVisible
+                                }){
+                                Button(
+                                onClick = { isListVisible = !isListVisible },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 5.dp)
+                            ) {
+                                Text(text = "List")
+                            }}
+                            
+
+                            Button(
+                                onClick = {
+                                    if (currentIndex != filteredCities.indexOf(dst)) {
+                                        currentIndex = (currentIndex + 1) % filteredCities.size
+                                        if (currentIndex == 0)
+                                        {
+                                            currentPlace = 0.toString()
+                                        }
+                                        else{
+                                            currentPlace = filteredCities[currentIndex]}
+
+
+                                        eachPlaceDistanceMiles = distances[currentIndex]
+                                        eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble()
+
+
+                                        totalDistanceCoverKm = "%.2f".format(totalDistanceCoverKm).toDouble() + "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
+                                        totalDistanceCoverMiles += eachPlaceDistanceMiles.absoluteValue
+
+
+                                        totalDistanceLeftKm -=  "%.2f".format(eachPlaceDistanceKm).toDouble().absoluteValue
+                                        totalDistanceLeftMiles -= eachPlaceDistanceMiles.absoluteValue
+
+                                        //progress = ((totalDistanceCoverKm + eachPlaceDistanceKm) / totalDistanceKm).coerceIn(0.0, 1.0)
+
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 5.dp),
+                                enabled = currentIndex != filteredCities.indexOf(dst)
+                            ) {
+                                Text(text = "Next Station")
+                            }
+
+                            Button(
+                                onClick = {
+                                    // Toggle between kilometers and miles
+                                    currentUnit = if (currentUnit == UnitType.MILES) {
+                                        eachPlaceDistanceKm = "%.2f".format(eachPlaceDistanceMiles * 1.60934).toDouble().absoluteValue
+                                        totalDistanceLeftKm = "%.2f".format(totalDistanceLeftMiles * 1.60934).toDouble().absoluteValue
+                                        totalDistanceCoverKm = "%.2f".format(totalDistanceCoverMiles * 1.60934).toDouble().absoluteValue
+
+                                        UnitType.KILOMETERS
+                                    } else {
+                                        eachPlaceDistanceMiles = (eachPlaceDistanceKm / 1.60934).toInt().absoluteValue
+                                        totalDistanceLeftMiles = (totalDistanceLeftKm / 1.60934).toInt().absoluteValue
+                                        totalDistanceCoverMiles = (totalDistanceCoverKm / 1.60934).toInt().absoluteValue
+                                        UnitType.MILES
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Text(text = "Convert to ${if (currentUnit == UnitType.MILES) "Kilometer" else "Miles"}")
+                            }
+
+
+                        }
+                    }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        LinearProgressIndicator(
+                            progress = progress.toFloat(),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
+                                .height(35.dp)
+                                .padding(top = 8.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
+                        )
+                        Text(
+                            text = "${"Progress Bar: %.2f".format(progress * 100)}%",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(6.dp)
+                                .align(Alignment.CenterHorizontally),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
-
             }
+
         }
+
+
+
     }
 }
 
@@ -405,3 +432,41 @@ enum class UnitType {
     KILOMETERS,
     MILES
 }
+
+
+@Composable
+fun newScreen(filteredCities: List<String>) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(490.dp)
+            .padding(16.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            items(filteredCities) { city ->
+                Card(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 12.dp)
+                    ) {
+                    Text(modifier = Modifier.fillMaxWidth()
+                        , textAlign = TextAlign.Center,
+
+                        text = city,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+            }
+        }
+    }
+}
+
