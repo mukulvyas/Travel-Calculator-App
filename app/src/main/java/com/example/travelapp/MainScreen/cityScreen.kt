@@ -1,6 +1,7 @@
 package com.example.travelapp.MainScreen
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -110,6 +111,7 @@ fun cityScreen(navController: NavController){
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun ContentMain(navController: NavController){
 
@@ -119,7 +121,6 @@ fun ContentMain(navController: NavController){
     val destinationStore = remember { mutableStateOf("") }
     val scrollingState = rememberScrollState()
     val context = LocalContext.current
-
         Column(
             modifier = Modifier
                 .padding(15.dp)
